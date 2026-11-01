@@ -54,18 +54,21 @@ const MemoryRecord* MemoryIndex::find(std::uint64_t id) const {
         if (findNode->rec.id == id){
             return &findNode->rec;
         } else {
-
+            if ((findNode->rec.id < id)&&(findNode->right == nullptr)){
+                return nullptr;
+            }
+            if ((findNode->rec.id > id)&&(findNode->left == nullptr)){
+                return nullptr;
+            }
             if (findNode->rec.id > id){
                 findNode = findNode->left;
             }
             else if ((findNode->rec.id < id)){
                 findNode = findNode->right;
             }
-            else if (findNode->right == nullptr || findNode->left == nullptr) {
-                return nullptr;
-            }
         }
     }
+    return nullptr;
 }
 
 bool MemoryIndex::remove(std::uint64_t id) {
