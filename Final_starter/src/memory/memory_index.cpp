@@ -18,26 +18,26 @@ bool MemoryIndex::insert(MemoryRecord rec) {
         count_++;
         return true;
     }
-    Node *now = root_;
+    Node *nowNode = root_;
     while (1){
-        if (now->rec.id == rec.id){
+        if (nowNode->rec.id == rec.id){
             return false;
         }
-        if (now-> rec.id > rec.id){
-            if (now->left == nullptr){
-                now->left = new Node(rec);
+        if (nowNode-> rec.id > rec.id){
+            if (nowNode->left == nullptr){
+                nowNode->left = new Node(rec);
                 count_++;
                 return true;
             } else {
-                now = rec;
+                nowNode = nowNode->left;
             }
         } else {
-            if (now->right == nullptr){
-                now->right = new Node(rec);
+            if (nowNode->right == nullptr){
+                nowNode->right = new Node(rec);
                 count_++;
                 return true;
             } else {
-                now = rec;
+                nowNode = nowNode->right;
             }
         }
     }
@@ -46,7 +46,23 @@ bool MemoryIndex::insert(MemoryRecord rec) {
 const MemoryRecord* MemoryIndex::find(std::uint64_t id) const {
     // TODO
     (void)id;
-    return nullptr;
+    if (root_ == nullptr){
+        return nullptr;
+    }
+    Node *findNode = root_;
+    while (1){
+        if (findNode->rec.id == id){
+            return findNode;
+        } else {
+            if (findNode->rec.id > id){
+                findNode = findNode->left;
+            }
+            else {
+                findNode = findNode->right;
+            }
+        }
+        return nullptr;
+    }
 }
 
 bool MemoryIndex::remove(std::uint64_t id) {
