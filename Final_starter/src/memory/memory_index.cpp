@@ -13,8 +13,34 @@ bool MemoryIndex::insert(MemoryRecord rec) {
     // walk fell off the tree, ++count_, return true.
     // Clue: memory ids arrive as 1, 2, 3, ..., so the tree is one long right
     // spine. A loop handles 5,000 nodes easily; so does recursion.
-    (void)rec;
-    return false;
+    if (root_ == nullptr){
+        root_ = new Node(rec);
+        count_++;
+        return true;
+    }
+    Node *now = root_;
+    while (1){
+        if (now->rec.id == rec.id){
+            return false;
+        }
+        if (now-> rec.id > rec.id){
+            if (now->left == nullptr){
+                now->left = new Node(rec);
+                count_++;
+                return true;
+            } else {
+                now = rec;
+            }
+        } else {
+            if (now->right == nullptr){
+                now->right = new Node(rec);
+                count_++;
+                return true;
+            } else {
+                now = rec;
+            }
+        }
+    }
 }
 
 const MemoryRecord* MemoryIndex::find(std::uint64_t id) const {
