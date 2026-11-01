@@ -45,23 +45,26 @@ bool MemoryIndex::insert(MemoryRecord rec) {
 
 const MemoryRecord* MemoryIndex::find(std::uint64_t id) const {
     // TODO
-    (void)id;
+    //(void)id;
     if (root_ == nullptr){
         return nullptr;
     }
     Node *findNode = root_;
     while (1){
         if (findNode->rec.id == id){
-            return findNode;
+            return &findNode->rec;
         } else {
+
             if (findNode->rec.id > id){
                 findNode = findNode->left;
             }
-            else {
+            else if ((findNode->rec.id < id)){
                 findNode = findNode->right;
             }
+            else if (findNode->right == nullptr || findNode->left == nullptr) {
+                return nullptr;
+            }
         }
-        return nullptr;
     }
 }
 
