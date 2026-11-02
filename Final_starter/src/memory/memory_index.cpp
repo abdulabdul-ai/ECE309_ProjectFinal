@@ -79,8 +79,46 @@ bool MemoryIndex::remove(std::uint64_t id) {
     // Clue: --count_ exactly once per successful remove. Counting inside
     // the helper AND here double-counts the two-children case.
     // Clue: when the removed node is the root, root_ itself must change.
-    (void)id;
-    return false;
+
+    if (find(id) == nullptr){
+        return false;
+    } else {
+        Node *removeNode = root_;
+        while (1){
+            if (removeNode->rec.id == id){
+                if ((removeNode->right == nullptr) && (removeNode->left == nullptr)){ //leaf 
+                    removeNode = nullptr;
+                }
+                if ((removeNode->right == nullptr) && !(removeNode->left == nullptr)){ //1 child 
+                    i
+                }
+                if (!(removeNode->right == nullptr) && (removeNode->left == nullptr)){  //1 child 
+                    if (findNode->rec.id > id){
+                        findNode = findNode->left;
+                    }
+                } else {  // 2 children
+                    if (findNode->rec.id > id){
+                        findNode = findNode->left;
+                    }
+                }
+            } else {
+            if ((findNode->rec.id < id)&&(findNode->right == nullptr)){
+                return nullptr;
+            }
+            if ((findNode->rec.id > id)&&(findNode->left == nullptr)){
+                return nullptr;
+            }
+            if (findNode->rec.id > id){
+                findNode = findNode->left;
+            }
+            else if ((findNode->rec.id < id)){
+                findNode = findNode->right;
+            }
+        }
+        }
+    }
+
+
 }
 
 std::size_t MemoryIndex::size() const noexcept { return count_; }
