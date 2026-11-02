@@ -14,7 +14,7 @@ bool MemoryIndex::insert(MemoryRecord rec) {
     // Clue: memory ids arrive as 1, 2, 3, ..., so the tree is one long right
     // spine. A loop handles 5,000 nodes easily; so does recursion.
     if (root_ == nullptr){
-        root_ = new Node(rec);
+        root_ = new Node{rec};
         count_++;
         return true;
     }
@@ -25,7 +25,7 @@ bool MemoryIndex::insert(MemoryRecord rec) {
         }
         if (nowNode-> rec.id > rec.id){
             if (nowNode->left == nullptr){
-                nowNode->left = new Node(rec);
+                nowNode->left = new Node{rec};
                 count_++;
                 return true;
             } else {
@@ -33,7 +33,7 @@ bool MemoryIndex::insert(MemoryRecord rec) {
             }
         } else {
             if (nowNode->right == nullptr){
-                nowNode->right = new Node(rec);
+                nowNode->right = new Node{rec};
                 count_++;
                 return true;
             } else {
@@ -86,6 +86,11 @@ bool MemoryIndex::remove(std::uint64_t id) {
 std::size_t MemoryIndex::size() const noexcept { return count_; }
 
 std::size_t MemoryIndex::height() const {
+    if (count_ == 0){
+        return 0;
+    } else if (count_ == 1){
+        return 1;
+    }
     // TODO: empty tree = 0, one node = 1, otherwise 1 + the taller child.
     return 0;
 }
