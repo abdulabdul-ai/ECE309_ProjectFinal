@@ -151,6 +151,19 @@ std::size_t MemoryIndex::heightNode(const Node* n){
 
 void MemoryIndex::for_each_in_order(const std::function<void(const MemoryRecord&)>& fn) const {
     // TODO: left subtree, then fn(node->rec), then right subtree.
+    std::function<void(const MemoryRecord&)> walk;
+
+    walk = & const (Node*n){
+        if (n == nullptr){
+            return;
+        } 
+        for_each_in_order(n->left);
+        fn(n->rec)
+        for_each_in_order(n->right);
+    }
+    walk(root_);
+
+
     //
 }
 
