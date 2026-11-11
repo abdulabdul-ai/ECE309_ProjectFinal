@@ -90,7 +90,9 @@ bool MemoryIndex::remove(std::uint64_t id) {
                     removeNode = nullptr;
                 }
                 if ((removeNode->right == nullptr) && !(removeNode->left == nullptr)){ //1 child 
-                    i
+                    if (findNode->rec.id > id){
+                        findNode = findNode->left;
+                    }
                 }
                 if (!(removeNode->right == nullptr) && (removeNode->left == nullptr)){  //1 child 
                     if (findNode->rec.id > id){
@@ -124,22 +126,35 @@ bool MemoryIndex::remove(std::uint64_t id) {
 std::size_t MemoryIndex::size() const noexcept { return count_; }
 
 std::size_t MemoryIndex::height() const {
-    if (count_ == 0){
-        return 0;
-    } else if (count_ == 1){
-        return 1;
+    if (root_ == nullptr){
+        return -1;
     }
-    // TODO: empty tree = 0, one node = 1, otherwise 1 + the taller child.
-    return 0;
+    int leftHeight = height(root->left);
+    int rightHeight = height(root->right);
+    size_t max = 0;
+
+    if (leftHeight > rightHeight){
+        max = leftHeight + 1;
+    } else {
+        max = rightHeight + 1;
+    }
+
+    return max;
+
+
 }
 
 void MemoryIndex::for_each_in_order(const std::function<void(const MemoryRecord&)>& fn) const {
     // TODO: left subtree, then fn(node->rec), then right subtree.
-    (void)fn;
+    //
 }
 
 void MemoryIndex::clear() {
     // TODO
     // Clue: after freeing the nodes, set root_ = nullptr and count_ = 0, or
     // the destructor frees them a second time.
+    destroy(right); 
+    destroy(left); 
+    root_ = nullptr;
+    count_ = 0;
 }
