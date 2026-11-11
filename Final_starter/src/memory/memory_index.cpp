@@ -92,8 +92,10 @@ bool MemoryIndex::remove(std::uint64_t id) {
 		Case3(tmp,parent);
 
 	    // delete node once removed	    
-	    //delete tmp;  // UNCOMMENT ONCE REMOVE WORKS
-	    break;
+	    delete tmp;  // UNCOMMENT ONCE REMOVE WORKS
+        count_--;
+        return true;
+	    //break;
 	  }			
 	else if (id < tmp->rec.id)
 	  {
@@ -106,6 +108,8 @@ bool MemoryIndex::remove(std::uint64_t id) {
 	    tmp = tmp->right;
 	  }
       }
+      return false;
+
 }
 
 bool MemoryIndex::Case1(Node *node, Node *parent)
