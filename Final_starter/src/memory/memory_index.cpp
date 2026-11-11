@@ -79,21 +79,168 @@ bool MemoryIndex::remove(std::uint64_t id) {
     // Clue: --count_ exactly once per successful remove. Counting inside
     // the helper AND here double-counts the two-children case.
     // Clue: when the removed node is the root, root_ itself must change.
+    Node *tmp = root_;
+    Node *parent = nullptr;
+    
+    // Find the node in the tree
+    while (tmp != nullptr)
+      {
+	if (tmp->rec.id == id)
+	  {
+	    if (!Case1(tmp,parent))
+	      if (!Case2(tmp,parent))
+		Case3(tmp,parent);
 
-    // if (find(id) == nullptr){
-    //     return false;
-    // } else {
+	    // delete node once removed	    
+	    //delete tmp;  // UNCOMMENT ONCE REMOVE WORKS
+	    break;
+	  }			
+	else if (id < tmp->rec.id)
+	  {
+	    parent = tmp;
+	    tmp = tmp->left;
+	  }
+	else
+	  {
+	    parent = tmp;
+	    tmp = tmp->right;
+	  }
+      }
+}
+
+bool MemoryIndex::Case1(Node *node, Node *parent)
+  {
+    if (node->right != nullptr || node->left != nullptr){
+        return false;
+    }
+    else {
+        if (parent != nullptr){
+            if (parent->rec.id > node->rec.id){
+                parent->left = nullptr;
+            } else {
+                parent->right = nullptr;
+            }
+            node = nullptr;
+        } else {
+            root_ = nullptr;
+            node = nullptr;
+        }
+
+    }
+    return true; // not Case 1, try Case 2    
+  }
+
+  bool MemoryIndex::Case2(Node *node, Node *parent)
+  {
+    if (node->right != nullptr && node->left != nullptr){
+        return false;
+    } else {
+        if (parent != nullptr){
+                    if (node->left != nullptr){
+            if (parent->rec.id > node->rec.id){
+                parent->left = node->left;
+            } else {
+                parent->right = node->left;
+            }
+            node = nullptr;
+        } else {
+            if (parent->rec.id > node->rec.id){
+                parent->left = node->right;
+            } else {
+                parent->right = node->right;
+            }
+        }
+        node = nullptr;
+        } else {
+            if (node->right != nullptr){
+                    root_ = node->right;
+            } else { 
+                    root_ = node->left;
+                }
+            }
+        }
+
+
+    return true; // not Case 1 or 2, must use Case 3
+  }
+
+  bool MemoryIndex::Case3(Node *node, Node *parent)
+  {
+    Node *successor;
+    Node *successorAbove;
+    // Case 3 must succeed!
+    successorAbove = node;
+    successor = node->right;
+        while (successor->left != nullptr){
+            successorAbove = successor;
+            successor = successor->left;
+        }
+
+    if (node != successorAbove){
+        successorAbove->left = successor->right;
+        successor->right = node->right;
+    }
+    successor->left = node->left;
+    if (parent == nullptr){
+        root_ = successor;
+    } 
+    else if (parent->left == node){
+        parent->left = successor;
+    } else {
+        parent->right = successor;
+    }
+    return true;
+  }
+//     if (find(id) == nullptr){
+//         return false;
+//     }
+//     else {
+//         Node *removeNode = root_;
+//         while(1){
+//             if (removeNode->rec.id == id){
+//                 removeNode = nullptr;
+//             }
+//             if ((removeNode->right == nullptr) && !(removeNode->left == nullptr)){ //1 child 
+//                 if (find(removeNode)->rec.id > id){
+//                     find(removeNode) = find(removeNode)->left;
+//                 }
+//             }
+//             if (!(removeNode->right == nullptr) && (removeNode->left == nullptr)){  //1 child 
+//                 if (find(removeNode)->rec.id > id){
+//                     find(removeNode) = find(removeNode)->left;
+//                 }
+//             } else {  // 2 children
+//                 if (find(removeNode)->rec.id > id){
+//                     find(removeNode) = find(removeNode)->left;
+//                 }
+//             }
+//         if ((find(removeNode)->rec.id < id)&&(find(removeNode)->right == nullptr)){
+//             return nullptr;
+//         }
+//         if ((find(removeNode)->rec.id > id)&&(find(removeNode)->left == nullptr)){
+//             return nullptr;
+//         }
+//         if (find(removeNode)->rec.id > id){
+//             find(removeNode) = find(removeNode)->left;
+//         }
+//         else if ((find(removeNode)->rec.id < id)){
+//             find(removeNode) = find(removeNode)->right;
+//         }
+//         }
+
+//     }
+// }
     //     Node *removeNode = root_;
     //     while (1){
     //         if (removeNode->rec.id == id){
     //             if ((removeNode->right == nullptr) && (removeNode->left == nullptr)){ //leaf 
     //                 removeNode = nullptr;
     //             }
-    //             if ((removeNode->right == nullptr) && !(removeNode->left == nullptr)){ //1 child 
-    //                 if (findNode->rec.id > id){
-    //                     findNode = findNode->left;
-    //                 }
-    //             }
+    //            if ((removeNode->right == nullptr) && !(removeNode->left == nullptr)){ //1 child 
+    //                if (findNode->rec.id > id){
+    //                    findNode = findNode->left;
+    //                }
+    //            }
     //             if (!(removeNode->right == nullptr) && (removeNode->left == nullptr)){  //1 child 
     //                 if (findNode->rec.id > id){
     //                     findNode = findNode->left;
@@ -119,11 +266,11 @@ bool MemoryIndex::remove(std::uint64_t id) {
     //     }
     //     }
     // }
-    (void)id;
-    return false;
+    //(void)id;
+    //return false;
 
 
-}
+
 
 std::size_t MemoryIndex::size() const noexcept { return count_; }
 
@@ -149,22 +296,22 @@ std::size_t MemoryIndex::heightNode(const Node* n){
     return max;
 }
 
+
 void MemoryIndex::for_each_in_order(const std::function<void(const MemoryRecord&)>& fn) const {
     // TODO: left subtree, then fn(node->rec), then right subtree.
-    std::function<void(const MemoryRecord&)> walk;
+    std::function<void(const Node*)> walk;
 
-    walk = & const (Node*n){
+    walk = [&](const Node* n){
         if (n == nullptr){
             return;
         } 
-        for_each_in_order(n->left);
-        fn(n->rec)
-        for_each_in_order(n->right);
-    }
+        walk(n->left);
+        fn(n->rec);
+        walk(n->right);
+
+    };
+
     walk(root_);
-
-
-    //
 }
 
 void MemoryIndex::clear() {
