@@ -4,7 +4,7 @@
 
 MemoryIndex::~MemoryIndex() {
     // TODO: free every node (post-order: both children before the node).
-    (void)root_;
+    clear();
 }
 
 bool MemoryIndex::insert(MemoryRecord rec) {
@@ -80,45 +80,47 @@ bool MemoryIndex::remove(std::uint64_t id) {
     // the helper AND here double-counts the two-children case.
     // Clue: when the removed node is the root, root_ itself must change.
 
-    if (find(id) == nullptr){
-        return false;
-    } else {
-        Node *removeNode = root_;
-        while (1){
-            if (removeNode->rec.id == id){
-                if ((removeNode->right == nullptr) && (removeNode->left == nullptr)){ //leaf 
-                    removeNode = nullptr;
-                }
-                if ((removeNode->right == nullptr) && !(removeNode->left == nullptr)){ //1 child 
-                    if (findNode->rec.id > id){
-                        findNode = findNode->left;
-                    }
-                }
-                if (!(removeNode->right == nullptr) && (removeNode->left == nullptr)){  //1 child 
-                    if (findNode->rec.id > id){
-                        findNode = findNode->left;
-                    }
-                } else {  // 2 children
-                    if (findNode->rec.id > id){
-                        findNode = findNode->left;
-                    }
-                }
-            } else {
-            if ((findNode->rec.id < id)&&(findNode->right == nullptr)){
-                return nullptr;
-            }
-            if ((findNode->rec.id > id)&&(findNode->left == nullptr)){
-                return nullptr;
-            }
-            if (findNode->rec.id > id){
-                findNode = findNode->left;
-            }
-            else if ((findNode->rec.id < id)){
-                findNode = findNode->right;
-            }
-        }
-        }
-    }
+    // if (find(id) == nullptr){
+    //     return false;
+    // } else {
+    //     Node *removeNode = root_;
+    //     while (1){
+    //         if (removeNode->rec.id == id){
+    //             if ((removeNode->right == nullptr) && (removeNode->left == nullptr)){ //leaf 
+    //                 removeNode = nullptr;
+    //             }
+    //             if ((removeNode->right == nullptr) && !(removeNode->left == nullptr)){ //1 child 
+    //                 if (findNode->rec.id > id){
+    //                     findNode = findNode->left;
+    //                 }
+    //             }
+    //             if (!(removeNode->right == nullptr) && (removeNode->left == nullptr)){  //1 child 
+    //                 if (findNode->rec.id > id){
+    //                     findNode = findNode->left;
+    //                 }
+    //             } else {  // 2 children
+    //                 if (findNode->rec.id > id){
+    //                     findNode = findNode->left;
+    //                 }
+    //             }
+    //         } else {
+    //         if ((findNode->rec.id < id)&&(findNode->right == nullptr)){
+    //             return nullptr;
+    //         }
+    //         if ((findNode->rec.id > id)&&(findNode->left == nullptr)){
+    //             return nullptr;
+    //         }
+    //         if (findNode->rec.id > id){
+    //             findNode = findNode->left;
+    //         }
+    //         else if ((findNode->rec.id < id)){
+    //             findNode = findNode->right;
+    //         }
+    //     }
+    //     }
+    // }
+    (void)id;
+    return false;
 
 
 }
@@ -126,12 +128,17 @@ bool MemoryIndex::remove(std::uint64_t id) {
 std::size_t MemoryIndex::size() const noexcept { return count_; }
 
 std::size_t MemoryIndex::height() const {
-    if (root_ == nullptr){
-        return -1;
+    return heightNode(root_);
+
+}
+
+std::size_t MemoryIndex::heightNode(const Node* n){
+    if (n == nullptr){
+        return 0;
     }
-    int leftHeight = height(root->left);
-    int rightHeight = height(root->right);
-    size_t max = 0;
+    std::size_t leftHeight = heightNode(n->left);
+    std::size_t rightHeight = heightNode(n->right);
+    std::size_t max = 0;
 
     if (leftHeight > rightHeight){
         max = leftHeight + 1;
@@ -140,8 +147,6 @@ std::size_t MemoryIndex::height() const {
     }
 
     return max;
-
-
 }
 
 void MemoryIndex::for_each_in_order(const std::function<void(const MemoryRecord&)>& fn) const {
@@ -153,8 +158,16 @@ void MemoryIndex::clear() {
     // TODO
     // Clue: after freeing the nodes, set root_ = nullptr and count_ = 0, or
     // the destructor frees them a second time.
-    destroy(right); 
-    destroy(left); 
+    destroy(root_); 
     root_ = nullptr;
     count_ = 0;
+}
+
+void MemoryIndex::destroy(const Node* n){
+    if (n == nullptr){
+        return;
+    }
+    destroy(n->left);
+    destroy(n->right);
+    delete n;
 }
