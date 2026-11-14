@@ -8,7 +8,10 @@ AllowlistPolicy::AllowlistPolicy(const std::vector<std::string>& programs) {
     // TODO: copy the names into programs_ (an std::unordered_set).
     // Clue: sets use insert(x), not push_back(x). One-liner: in the member
     // initializer list,  programs_(programs.begin(), programs.end()).
-    (void)programs;
+    for (const auto&item: programs){
+        programs_.insert(item);
+    }
+
 }
 
 Decision AllowlistPolicy::evaluate(const CommandRequest& req) {
