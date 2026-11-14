@@ -51,7 +51,10 @@ Decision ArgumentPatternPolicy::evaluate(const CommandRequest& req) {
 
 ConfirmPolicy::ConfirmPolicy(const std::vector<std::string>& programs) {
     // TODO
-    (void)programs;
+    for (const auto&item : programs){
+        programs_.insert(item);
+    }
+    // (void)programs;
 }
 
 Decision ConfirmPolicy::evaluate(const CommandRequest& req) {
