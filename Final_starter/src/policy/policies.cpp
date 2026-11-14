@@ -59,8 +59,11 @@ ConfirmPolicy::ConfirmPolicy(const std::vector<std::string>& programs) {
 
 Decision ConfirmPolicy::evaluate(const CommandRequest& req) {
     // TODO: Decision::ask(...) for listed programs, Decision::allow(...) otherwise.
-    (void)req;
-    return Decision::deny("not implemented", name());
+    if (programs_.find(req.program) != programs_.end()){
+        return Decision::ask("on the list", name());
+    }
+    // (void)req;
+    return Decision::allow("not implemented", name());
 }
 
 RateLimitPolicy::RateLimitPolicy(std::size_t max_commands, double window_seconds, const Clock& clock)
@@ -81,7 +84,19 @@ Decision RateLimitPolicy::evaluate(const CommandRequest& req) {
     (void)max_;
     (void)window_;
     (void)clock_;
-    return Decision::deny("not implemented", name());
+    //return Decision::deny("not implemented", name());
+
+    double now = clock_.now_seconds();
+    while (!times_.empty() && (now - times_.front() >= window_)){
+        times_.pop();
+    }
+    if (times_.size() >= max_){
+        return Decision::deny("at/above max_ timestamps", name());
+    } else {
+        times_.push(now);
+        return Decision::allow("below max_ timestamps", name());
+    }
 }
 
 std::size_t RateLimitPolicy::tracked() const noexcept { return times_.size(); }
+//when to not mix up data types like doubles, Clock, etc
