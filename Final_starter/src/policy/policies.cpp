@@ -11,7 +11,8 @@ AllowlistPolicy::AllowlistPolicy(const std::vector<std::string>& programs) {
     for (const auto&item: programs){
         programs_.insert(item);
     }
-
+    //programs_.insert(programs);
+    //(void)programs;
 }
 
 Decision AllowlistPolicy::evaluate(const CommandRequest& req) {
@@ -21,7 +22,9 @@ Decision AllowlistPolicy::evaluate(const CommandRequest& req) {
     // project is C++17.)  Build results with Decision::allow(reason, name())
     // and Decision::deny(reason, name()). Any non-empty reason is fine;
     // naming the program ("'rm' is not on the allowlist") helps the user.
-    (void)req;
+    if (programs_.find(req.program) != programs_.end()){
+        return Decision::allow("on the list", name());
+    }
     return Decision::deny("not implemented", name());
 }
 
@@ -34,8 +37,16 @@ Decision ArgumentPatternPolicy::evaluate(const CommandRequest& req) {
     // nothing, NOT 0 or false. "if (line.find(p))" is true for almost
     // everything. Compare with npos.
     // Clue: skip empty patterns: every string "contains" the empty string.
-    (void)req;
-    return Decision::deny("not implemented", name());
+
+    for (const auto&p:patterns_){
+        if (p.empty()){
+            continue;
+        }
+        if (req.command_line().find(p) != std::string::npos){
+            return Decision::deny("pattern", name());
+        }
+    }
+    return Decision::allow("no pattern", name());
 }
 
 ConfirmPolicy::ConfirmPolicy(const std::vector<std::string>& programs) {
