@@ -4,7 +4,10 @@
 
 bool DepGraph::add_node(const std::string& name) {
     // TODO
-    (void)name;
+    if (requires_.find(name) == requires_.end()){
+        requires_.insert({name, std::vector<std::string>{}});
+        return true;
+    }
     return false;
 }
 
