@@ -30,6 +30,29 @@ Decision PolicyChain::evaluate(const CommandRequest& req) {
     //    only the FIRST Ask; after the loop return that Ask if there was one.
     //  * The enum is nested: write Decision::Kind::Deny, not Deny or
     //    Decision::Deny.
-    (void)req;
-    return Decision::deny("not implemented", name());
+    //(void)req;
+
+        if (children_.size() == 0){
+            return Decision::deny("empty chain", name());
+        } 
+        Decision ask = Decision::ask("first ask", name());
+        bool asked = 0;
+        for (const auto& child : children_){
+            Decision deci = child->evaluate(req);
+
+            if (deci.kind == Decision::Kind::Deny){
+                return deci;
+
+            }
+            else if (deci.kind == Decision::Kind::Ask){
+                if (asked == 0){
+                    ask = deci;
+                    asked = 1;
+                }
+            } 
+        }
+        if (asked){
+            return ask;
+        }
+    return Decision::allow("all allowed", name());
 }
