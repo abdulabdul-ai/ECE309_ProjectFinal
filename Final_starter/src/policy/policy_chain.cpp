@@ -9,7 +9,11 @@ bool PolicyChain::add(std::unique_ptr<Policy> child) {
     // Clue: a unique_ptr cannot be copied. Check for nullptr first, then
     // children_.push_back(std::move(child)). Plain push_back(child) gives a
     // long error mentioning "use of deleted function unique_ptr(const unique_ptr&)".
-    (void)child;
+    // (void)child;
+    if (!(child == nullptr)){
+        children_.push_back(std::move(child));
+        return true;
+    }
     return false;
 }
 
