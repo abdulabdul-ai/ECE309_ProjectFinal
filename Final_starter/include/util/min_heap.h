@@ -50,7 +50,11 @@ public:
     // The smallest element. Throws std::out_of_range if empty. O(1).
     const T& top() const {
         // TODO
-        throw std::out_of_range("MinHeap::top not implemented");
+        if (data_.size() == 0){
+            throw std::out_of_range("MinHeap::top not implemented");
+        }
+        else { return data_[0];}
+
     }
 
     // Removes and returns the smallest element. Throws std::out_of_range if
