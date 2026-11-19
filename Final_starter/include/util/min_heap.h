@@ -37,7 +37,14 @@ public:
         // Clue: compare with less_(a, b), never a < b. Some element types
         // (e.g. the provided memory_store.cpp's Scored struct) have no
         // operator<, and a min-heap of std::greater must still work.
-        (void)value;
+        data_.push_back(std::move(value));
+        for (std::size_t i = (data_.size() - 1); i>0; i = (i - 1)/2){
+            if (less_(data_[i], data_[(i - 1 )/2])){
+                std::swap(data_[i], data_[(i - 1 )/2]);
+            }
+        }
+
+        //(void)value;
     }
 
     // The smallest element. Throws std::out_of_range if empty. O(1).
