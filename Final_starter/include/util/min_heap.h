@@ -66,7 +66,56 @@ public:
         // element" to move: just take it and pop_back().
         // Clue: T result = std::move(data_[0]); then move the last element
         // into slot 0 (moving avoids copying big strings).
-        throw std::out_of_range("MinHeap::pop not implemented");
+        if (data_.size() == 0){
+            throw std::out_of_range("MinHeap::top not implemented");
+        }
+
+        T result = std::move(data_[0]);
+
+        if (data_.size() == 1){
+            data_.pop_back();
+            return result;
+        }
+
+        std::swap(data_.back(), data_.front());
+        data_.pop_back();
+
+        for (std::size_t i = 0; i< data_.size();){
+            if (2*i + 2 < data_.size()){
+                if (less_(data_[2*i + 2], data_[2*i + 1])){
+                    if (less_(data_[2*i + 2],data_[i])){
+                        std::swap( data_[2*i + 2],data_[i]);
+                        i = 2*i + 2;
+                    } else {
+                        break;
+                    }
+                } else {
+                    if (less_( data_[2*i + 1],data_[i])){
+                        std::swap(data_[2*i + 1],data_[i]);
+                        i = 2*i + 1;
+                    } else {
+                        break;
+                    }
+                }
+            } else if (2*i + 1 < data_.size()) {
+                if (less_( data_[2*i + 1], data_[i])){
+                    std::swap(data_[2*i + 1],data_[i]); 
+                    i = 2*i + 1;
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+            // if (less_(data_[i], data_[i/2 - 1])){
+            //     std::swap(data_[i], data_[i/2 - 1]);
+            // }
+        }
+
+        return result;
+
+        //throw std::out_of_range("MinHeap::pop not implemented");
+
     }
 
     std::size_t size() const noexcept { return data_.size(); }
