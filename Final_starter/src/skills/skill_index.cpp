@@ -32,8 +32,9 @@ const std::vector<std::size_t>* SkillIndex::postings(std::string_view word) cons
 }
 
 std::size_t SkillIndex::word_count() const noexcept {
+    return postings_.size();
     // TODO
-    return 0;
+    //return 0;
 }
 
 std::vector<std::size_t> SkillIndex::search(std::string_view query, std::size_t k) const {
