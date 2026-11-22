@@ -63,6 +63,11 @@ std::vector<std::size_t> SkillIndex::search(std::string_view query, std::size_t 
                 score[p]++;
             }
     }
+    if (k == 0){
+        continue;
+    }
+    std::vector<std::pair<std::size_t, std::size_t>> pairs;
+
 
 
     (void)query;
