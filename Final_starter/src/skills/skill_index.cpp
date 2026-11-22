@@ -93,7 +93,8 @@ std::vector<std::size_t> SkillIndex::search(std::string_view query, std::size_t 
     };
     auto order = top_k(pairs, k, worst);
     for (const auto& item: order){
-        
+        answer.push_back(item.second);
     }
+    return answer;
 
 }
