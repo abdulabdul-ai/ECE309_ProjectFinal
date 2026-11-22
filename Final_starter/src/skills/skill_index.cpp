@@ -21,8 +21,14 @@ const std::vector<std::size_t>* SkillIndex::postings(std::string_view word) cons
     // Clue: the map's keys are std::string, so find(word) with a
     // string_view does not compile in C++17: use find(std::string(word)).
     // Return the address of the vector inside the map (&it->second).
-    (void)word;
-    return nullptr;
+    if (postings_.find(std::string(word)) != postings_.end()){
+        auto it = postings_.find(std::string(word));
+        return &it->second;
+    } else {
+        return nullptr;
+    }
+    //(void)word;
+    //return nullptr;
 }
 
 std::size_t SkillIndex::word_count() const noexcept {
