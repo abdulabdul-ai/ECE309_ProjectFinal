@@ -49,7 +49,24 @@ std::vector<std::size_t> SkillIndex::search(std::string_view query, std::size_t 
     //    equal scores the LARGER doc_id is worse.
     //  * Don't copy the lambda in skill_index_linear.cpp: that one is a
     //    std::sort order ("a comes first"), the opposite direction.
+    auto temp = unique_tokens(query);
+    std::unordered_map<std::size_t, std::size_t>score;
+    //std::vector<std::size_t> top_k;
+    for (const auto& item: temp){
+
+
+            const std::vector<std::size_t>* ptr = postings(item);
+            if (ptr == nullptr){
+                continue;
+            }
+            for (std::size_t p : *ptr){
+                score[p]++;
+            }
+    }
+
+
     (void)query;
     (void)k;
     return {};
 }
+
