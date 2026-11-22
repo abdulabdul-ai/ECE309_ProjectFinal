@@ -12,6 +12,7 @@ void SkillIndex::add(std::size_t doc_id, std::string_view text) {
     for (const auto&item : temp){
         postings_[item].push_back(doc_id);
     }
+    //temp.push(doc_id);
     //(void)doc_id;
     //(void)text;
 }
@@ -49,8 +50,15 @@ std::vector<std::size_t> SkillIndex::search(std::string_view query, std::size_t 
     //    equal scores the LARGER doc_id is worse.
     //  * Don't copy the lambda in skill_index_linear.cpp: that one is a
     //    std::sort order ("a comes first"), the opposite direction.
+    std::vector<std::size_t> empty;
+    std::vector<std::size_t> answer;
+
+    if (k == 0){
+        return empty;
+    }
     auto temp = unique_tokens(query);
     std::unordered_map<std::size_t, std::size_t>score;
+
     //std::vector<std::size_t> top_k;
     for (const auto& item: temp){
 
@@ -63,15 +71,29 @@ std::vector<std::size_t> SkillIndex::search(std::string_view query, std::size_t 
                 score[p]++;
             }
     }
-    if (k == 0){
-        continue;
-    }
+
     std::vector<std::pair<std::size_t, std::size_t>> pairs;
+    for (const auto& item: score){
+        pairs.push_back({item.second, item.first});
 
+    }
+    auto worst = [](const std::pair<std::size_t, std::size_t>& one, const std::pair<std::size_t, std::size_t>& two){
+        if (one.first < two.first){
 
+            return true;
+        } else if (one.first == two.first){
+            if (one.second < two.second){
+                return false;
+            } else {
+                return true;
+            }
+            return false;
+        }
+        return false;
+    };
+    auto order = top_k(pairs, k, worst);
+    for (const auto& item: order){
+        
+    }
 
-    (void)query;
-    (void)k;
-    return {};
 }
-
