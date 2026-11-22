@@ -172,12 +172,9 @@ std::vector<T> top_k(const std::vector<T>& items, std::size_t k, Less less = Les
     // (void)items;
     // (void)k;
     // (void)less;
-    int i = 0;
     while (heap.size() >= 1){
-
-        answer.insert(heap[i])
+        answer.push_back(heap.top());
         heap.pop();
-        i++;
     }
     std::reverse(answer.begin(), answer.end());
     return answer;
