@@ -8,8 +8,12 @@ void SkillIndex::add(std::size_t doc_id, std::string_view text) {
     // TODO
     // Clue: use unique_tokens(text), not tokenize(text): a word that appears
     // twice in one document must post its doc_id only once.
-    (void)doc_id;
-    (void)text;
+    auto temp = unique_tokens(text);
+    for (const auto&item : temp){
+        postings_[item].push_back(doc_id);
+    }
+    //(void)doc_id;
+    //(void)text;
 }
 
 const std::vector<std::size_t>* SkillIndex::postings(std::string_view word) const {
