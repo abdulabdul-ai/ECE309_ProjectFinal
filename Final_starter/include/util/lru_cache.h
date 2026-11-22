@@ -13,7 +13,7 @@
 // Rules for this file:
 //   * Write the doubly linked list yourself (Node with prev/next pointers,
 //     new/delete inside this class only). Do NOT use std::list, std::deque
-//     or std::forward_list (don't even #include their headers), or a
+//     or std::forward_list (don't even #include their headers), or 
 //     std::vector you shift around (spec §7.3).
 //   * std::unordered_map is allowed (and expected) for the key -> Node* index.
 //   * No leaks, no double frees: ASan runs on every test.
@@ -54,8 +54,20 @@ public:
         // with map_.end(). Do NOT use map_[key] to look up: on a miss it
         // INSERTS the key (with a nullptr node), size() grows, and a later
         // put() crashes far away from the real bug.
-        (void)key;
-        return nullptr;
+        auto it = map_.find(key);
+        if (it == map_.end()){
+            miss++;
+            return nullptr;
+        } else {
+            hits++;
+            Node* n = it->second;
+            return &n->value;
+            if (n->head_ != n->value){
+
+            }
+        }
+        //(void)key;
+        //return nullptr;
     }
 
     // Key present: replaces its value and marks it most recently used (no
