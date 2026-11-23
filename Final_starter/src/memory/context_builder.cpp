@@ -55,6 +55,12 @@ ContextPlan select_context(const std::vector<ContextItem>& items,
                     heap.push({drop_rank(items[i].role),i});
                 }
             }
+            std::vector<bool> kept(items.size(), true);
+            while (total_tokens > budget && !heap.empty()){
+                auto popped = heap.pop();
+                kept[popped.second] = false;
+                total_tokens -= items[popped.second].tokens;
+            }
         }
     }
 
