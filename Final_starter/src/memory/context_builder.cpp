@@ -50,10 +50,9 @@ ContextPlan select_context(const std::vector<ContextItem>& items,
             return fit;
 
         } else {
-            for (std::size_t i = items.size() - keep_recent - 1; i >= 0; i--){
+            for (std::size_t i = 0; i < items.size() - keep_recent; i++){
                 if (items[i].role != Role::System && items[i].pinned != true){
-
-                    heap(drop_rank(items[i].role),i);
+                    heap.push({drop_rank(items[i].role),i});
                 }
             }
         }
