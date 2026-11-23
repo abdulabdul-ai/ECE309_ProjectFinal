@@ -63,11 +63,15 @@ ContextPlan select_context(const std::vector<ContextItem>& items,
             }
 
             for (std::size_t i = 0; i < items.size(); i++){
-                fit.keep.push_back(i);
-                fit.over_budget = false;
-                fit.total_tokens = total_tokens;
-                return fit;
+                if (kept[i] == true){
+                    fit.keep.push_back(i);
+                }
             }
+            fit.total_tokens = total_tokens;
+            if (total_tokens <= budget){
+                fit.over_budget = false;
+            }
+            return fit;
         }
     }
 
