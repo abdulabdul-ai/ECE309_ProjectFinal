@@ -28,36 +28,35 @@ ContextPlan select_context(const std::vector<ContextItem>& items,
     //     heap(keep_recent, )
     // }
     std::size_t total_tokens = 0;
-    std::vector<ContextPlan> fit; 
-    bool over_budget = false;
+    ContextPlan fit; 
     for (const auto& i : items){
         total_tokens += i.tokens;
     }
-    if (total_tokens > budget){
-        over_budget = true;
-    } else {
+    if (total_tokens <= budget){
         for (std::size_t i = 0; i < items.size(); i++){
             fit.keep.push_back(i);
         }
-        over_budget = false;
-    }
-    while (over_budget){
-        if (keep_recent > items.size()){
+
+        fit.total_tokens = total_tokens;
+        return fit;
+    } else {
+         if (keep_recent >= items.size()){
             for (std::size_t i = 0; i < items.size(); i++){
-                if (items.role != Role::System && items.pinned != true){
-                    
-                }
+                fit.keep.push_back(i);
             }
+            fit.over_budget = true;
+            fit.total_tokens = total_tokens;
+            return fit;
 
         } else {
             for (std::size_t i = items.size() - keep_recent; i > 0; i--){
-                if ()
+                if (items[i].role != Role::System && items[i].pinned != true){
+
+                }
             }
         }
-
-
-
     }
+
     (void)items;
     (void)budget;
     (void)keep_recent;
