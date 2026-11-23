@@ -27,6 +27,7 @@ ContextPlan select_context(const std::vector<ContextItem>& items,
     // if (total <= budget){
     //     heap(keep_recent, )
     // }
+    MinHeap<std::pair<int, std::size_t>> heap;
     std::size_t total_tokens = 0;
     ContextPlan fit; 
     for (const auto& i : items){
@@ -49,9 +50,10 @@ ContextPlan select_context(const std::vector<ContextItem>& items,
             return fit;
 
         } else {
-            for (std::size_t i = items.size() - keep_recent; i > 0; i--){
+            for (std::size_t i = items.size() - keep_recent - 1; i >= 0; i--){
                 if (items[i].role != Role::System && items[i].pinned != true){
 
+                    heap(drop_rank(items[i].role),i);
                 }
             }
         }
