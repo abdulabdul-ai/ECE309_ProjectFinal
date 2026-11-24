@@ -1,75 +1,81 @@
-// src/skills/dep_graph.cpp — YOU IMPLEMENT. Spec §6.2.
+// include/skills/dep_graph.h
+//
+// YOU IMPLEMENT (src/skills/dep_graph.cpp). Spec §6.2.
+//
+// A directed graph of skill names. An edge from -> to means "from REQUIRES
+// to" (to must be loaded before from). The provided SkillCatalog adds one
+// node per skill and one edge per "requires:" entry.
+//
+// Any STL container is allowed for the adjacency lists and the visited /
+// color marks (std::unordered_map, std::vector, std::queue, ...). The
+// traversals themselves (DFS, BFS) are yours: no graph library.
+//
+// The PUBLIC interface is fixed. The PRIVATE section is yours.
 
-#include "skills/dep_graph.h"
+#pragma once
+#include <cstddef>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-bool DepGraph::add_node(const std::string& name) {
-    // TODO
-    if (requires_.find(name) == requires_.end()){
-        requires_.insert({name, std::vector<std::string>{}});
-        return true;
-    }
-    return false;
-}
+class DepGraph {
+public:
+    // Adds a node. Returns false if it already exists.
+    bool add_node(const std::string& name);
 
-bool DepGraph::add_edge(const std::string& from, const std::string& to) {
-    // TODO
-    (void)from;
-    (void)to;
-    return false;
-}
+    // Adds the edge from -> to ("from requires to"). Returns false (and adds
+    // nothing) if `from` is not a node, or the same edge already exists.
+    // `to` does NOT need to be a node: a requirement on a skill that does
+    // not exist is allowed here and reported later by order_from().
+    bool add_edge(const std::string& from, const std::string& to);
 
-bool DepGraph::has_node(const std::string& name) const {
-    // TODO
-    (void)name;
-    return false;
-}
+    bool        has_node(const std::string& name) const;
+    std::size_t node_count() const noexcept;
 
-std::size_t DepGraph::node_count() const noexcept {
-    // TODO
-    return 0;
-}
+    // The direct requirements of `name`, in the order the edges were added.
+    // Empty for an unknown name.
+    const std::vector<std::string>& requirements(const std::string& name) const;
 
-const std::vector<std::string>& DepGraph::requirements(const std::string& name) const {
-    // TODO: return the stored list; for an unknown name return a reference
-    // to an empty vector that outlives the call (e.g. a function-local
-    // static const).
-    (void)name;
-    static const std::vector<std::string> kNone;
-    return kNone;
-}
+    // DEPTH-FIRST SEARCH. The load order for `root`: root and everything it
+    // needs, directly or indirectly, each exactly once, every skill AFTER all
+    // of its requirements (so root is last). Visit requirements in the order
+    // the edges were added; the output is the DFS post-order.
+    //
+    // On success: returns true, *out = the order, *error untouched.
+    // On failure: returns false, *error = exactly one of
+    //   "unknown: <root>"                  root is not a node
+    //   "missing: <x> (required by <y>)"   the DFS reached an edge y -> x
+    //                                      and x is not a node
+    //   "cycle: <a> -> <b> -> ... -> <a>"  the DFS reached an edge to a node
+    //                                      that is still on the current DFS
+    //                                      path; list that path from that
+    //                                      node, then the node again
+    // reporting the FIRST problem the DFS meets. *out is unspecified.
+    // Example: a requires b, b requires c, c requires a; order_from("a")
+    // fails with "cycle: a -> b -> c -> a".
+    bool order_from(const std::string& root, std::vector<std::string>* out,
+                    std::string* error) const;
 
-bool DepGraph::order_from(const std::string& root, std::vector<std::string>* out,
-                          std::string* error) const {
-    // TODO: DFS with three colors (white / gray = on the current path /
-    // black = finished). Spec §6.2 gives the exact error strings, and
-    // Appendix D traces the diamond.
-    // Clues:
-    //  * Keep a vector<string> path of the gray nodes: push_back when a node
-    //    turns gray, pop_back when it turns black. When an edge reaches a
-    //    gray node x, the cycle is the part of path from x to the end, then
-    //    x again. Check yourself with a>b, a>c, c>a: the answer is
-    //    "cycle: a -> c -> a" (b is already finished and must not appear).
-    //  * Append a node to *out when it turns BLACK (after its requirements),
-    //    never when it turns gray.
-    //  * Order of checks for each edge: missing node, then gray (cycle),
-    //    then white (visit). Black: skip, that is not a cycle.
-    //  * Separators are exactly " -> " (space, dash, greater-than, space).
-    (void)root;
-    (void)out;
-    *error = "not implemented";
-    return false;
-}
+    // BREADTH-FIRST SEARCH over the edges REVERSED. Every skill that
+    // requires `name` directly or indirectly ("what breaks if I delete
+    // name?"), nearest first: sorted by BFS distance, and alphabetically
+    // within the same distance. Does not include `name` itself. Works even
+    // if `name` is not a node (a missing requirement) or the graph has
+    // cycles. Empty if nothing depends on it.
+    std::vector<std::string> dependents(const std::string& name) const;
 
-std::vector<std::string> DepGraph::dependents(const std::string& name) const {
-    // TODO: BFS over the reversed edges.
-    // Clues:
-    //  * Mark `name` itself as seen before you start, so a cycle can't add
-    //    it to the result.
-    //  * The order is by (distance, name). Easiest: sort each BFS level
-    //    alphabetically before appending it. Sorting the whole result by
-    //    name alone loses the nearest-first order.
-    //  * std::queue<std::pair<std::string, int>> (node, distance) works, or
-    //    process one level (a vector) at a time.
-    (void)name;
-    return {};
-}
+private:
+    // ===== YOUR REPRESENTATION GOES HERE =====
+    // A suggested start (change it if you like):
+    std::unordered_map<std::string, std::vector<std::string>> requires_;     // node -> requirements
+    std::unordered_map<std::string, std::vector<std::string>> required_by_;  // target -> nodes needing it
+    // Clue: if you keep required_by_ for the BFS, add_edge must fill it too.
+    // Clue: order_from() and the others are const, so requires_[name] does
+    // not compile there ("discards qualifiers") - and it would insert a new
+    // key anyway. Use requires_.find(name) and compare with requires_.end().
+    // Clue: a recursive DFS helper needs a declaration here, e.g.
+    //   bool dfs(const std::string& node, std::unordered_map<std::string, int>& color,
+    //            std::vector<std::string>& path, std::vector<std::string>* out,
+    //            std::string* error) const;
+    // (or write it as a free function in an anonymous namespace in the .cpp).
+};
