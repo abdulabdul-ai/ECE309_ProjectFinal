@@ -13,21 +13,21 @@ bool DepGraph::add_node(const std::string& name) {
 
 bool DepGraph::add_edge(const std::string& from, const std::string& to) {
     // TODO
-    if ((requires_.find(from) != requires_.end()) && (required_by_.find(from) != required_by_.end())){
-        return false;
-    } else {
-        for (const auto& i : items){
-            if 
-        }
-        requires_.insert({to, std::vector<std::string{}>});
-        required_by_.insert({from, std::vector<std::string>{}});
-        return true;
-    }
+    // if ((requires_.find(from) != requires_.end()) && (required_by_.find(from) != required_by_.end())){
+    //     return false;
+    // } else {
+    //     for (const auto& i : items){
+    //         if 
+    //     }
+    //     requires_.insert({to, std::vector<std::string{}>});
+    //     required_by_.insert({from, std::vector<std::string>{}});
+    //     return true;
+    // }
 
-    if (requires_.find(name) == requires_.end()){
-        return false;
-    } 
-    for (const auto& i : )
+    // if (requires_.find(name) == requires_.end()){
+    //     return false;
+    // } 
+    // for (const auto& i : )
     // for (int i = 0; i < from.size(); i++){
     //     if (from.find(to) == from.end()){
     //         return false;
@@ -59,9 +59,15 @@ const std::vector<std::string>& DepGraph::requirements(const std::string& name) 
     // TODO: return the stored list; for an unknown name return a reference
     // to an empty vector that outlives the call (e.g. a function-local
     // static const).
-    (void)name;
+    //(void)name;
     static const std::vector<std::string> kNone;
-    return kNone;
+    auto it = requires_.find(name);
+
+    if (it == requires_.end()){
+        return kNone;
+    } else {
+        return it->second;
+    }
 }
 
 bool DepGraph::order_from(const std::string& root, std::vector<std::string>* out,
