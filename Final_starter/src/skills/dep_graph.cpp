@@ -16,10 +16,18 @@ bool DepGraph::add_edge(const std::string& from, const std::string& to) {
     if ((requires_.find(from) != requires_.end()) && (required_by_.find(from) != required_by_.end())){
         return false;
     } else {
+        for (const auto& i : items){
+            if 
+        }
         requires_.insert({to, std::vector<std::string{}>});
-        required_by_.insert({from, std::vector<std::string{}>});
+        required_by_.insert({from, std::vector<std::string>{}});
         return true;
     }
+
+    if (requires_.find(name) == requires_.end()){
+        return false;
+    } 
+    for (const auto& i : )
     // for (int i = 0; i < from.size(); i++){
     //     if (from.find(to) == from.end()){
     //         return false;
