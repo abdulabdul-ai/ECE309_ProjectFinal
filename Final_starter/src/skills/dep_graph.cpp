@@ -24,9 +24,17 @@ bool DepGraph::add_edge(const std::string& from, const std::string& to) {
     //     return true;
     // }
 
-    // if (requires_.find(name) == requires_.end()){
-    //     return false;
-    // } 
+    if (requires_.find(from) == requires_.end()){
+        return false;
+    } 
+    for (const auto&r : requirements(from)){
+        if (r == to){
+            return false;
+        }
+    }
+    requires_[from].push_back(to);
+    required_by_[to].push_back(from);
+    return true;
     // for (const auto& i : )
     // for (int i = 0; i < from.size(); i++){
     //     if (from.find(to) == from.end()){
@@ -37,9 +45,9 @@ bool DepGraph::add_edge(const std::string& from, const std::string& to) {
     //     required_by_.insert(to, from);
     //     return true;
     // }
-    (void)from;
-    (void)to;
-    return false;
+    //(void)from;
+    //(void)to;
+    //return false;
 }
 
 bool DepGraph::has_node(const std::string& name) const {
