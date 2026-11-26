@@ -73,12 +73,21 @@ public:
     //   (counting one eviction), then inserts the new entry as most recently
     //   used. With capacity 0, does nothing.
     void put(const Key& key, Value value) {
+        if (capacity_ == 0){ return;}
+        auto it = map_.find(key);
+        if (it != map_.end()){
+            Node *n = it->second;
+            n->value = std::move(value);
+            move_to_front(n);
+            return;
+        }
         // TODO
         // Clue (eviction): victim = tail_; unlink it; erase victim->key from
         // the map; THEN delete victim. Reading victim->key after delete is a
         // heap-use-after-free (ASan may show it as a SEGV inside hashtable
         // code: look for the first stack frame in lru_cache.h).
         // Clue: create nodes with  new Node{key, std::move(value), nullptr, nullptr}.
+
         (void)key;
         (void)value;
     }
