@@ -94,17 +94,21 @@ bool DepGraph::order_from(const std::string& root, std::vector<std::string>* out
     //  * Order of checks for each edge: missing node, then gray (cycle),
     //    then white (visit). Black: skip, that is not a cycle.
     //  * Separators are exactly " -> " (space, dash, greater-than, space).
-    std::vector<std::string> gray_nodes;
-    std::vector<std::string> black_nodes;
-    std::vector<std::string> white_nodes;
-    (void)root;
-    (void)out;
-    *error = "not implemented";
-    if (!has_node(rote)){
+    //std::vector<std::string> gray_nodes;
+    //std::vector<std::string> black_nodes;
+    //std::vector<std::string> white_nodes;
+    std::unordered_map<std::string, int> color;
+    std::vector<std::string> path;
+    //(void)root;
+    //(void)out;
+    //*error = "not implemented";
+    if (!has_node(root)){
         *error  = "unknown: " + root;
         return false;
     }
-    return false;
+    out->clear();
+    auto order = dfs(root, color, path, out, error);
+    return order;
 }
 
 std::vector<std::string> DepGraph::dependents(const std::string& name) const {
