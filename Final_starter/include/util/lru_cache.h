@@ -54,21 +54,17 @@ public:
         // with map_.end(). Do NOT use map_[key] to look up: on a miss it
         // INSERTS the key (with a nullptr node), size() grows, and a later
         // put() crashes far away from the real bug.
-        Stats s;
         auto it = map_.find(key);
         if (it == map_.end()){
-            s.misses++;
+            stats_.misses++;
             return nullptr;
         } else {
-            s.hits++;
             Node* n = it->second;
+            stats_.hits++;
+            move_to_front(n);
             return &n->value;
-            // if (n->head_ != n->value){
 
-            // }
         }
-        // (void)key;
-        // return nullptr;
     }
 
     // Key present: replaces its value and marks it most recently used (no
@@ -126,35 +122,7 @@ public:
         return out;
     }
 
-    void unlink(Node* n){
-        if (n->prev != nullptr){
-            n->prev->next = n->next;
-        } else {
-            head_ = n->next;
-        }
 
-        if (n->next != nullptr){
-            n->next->prev  = n->prev;
-        } else {
-            tail_ = n->prev;
-        }
-        return;
-    }
-
-    void push_front(Node* n){
-        if (head_ == nullptr){
-            tail_ = n;
-        } else {
-            head_->prev  = n;
-        }
-        head_ = n;
-        return;
-    }
-
-    // void move_to_front(Node* n){
-    //     n.insert({n, 0})
-    //     return void;
-    // }
 private:
     struct Node {
         Key   key;
@@ -176,6 +144,44 @@ private:
     Node*       tail_ = nullptr;
     std::size_t capacity_;
     Stats       stats_;
+
+        void unlink(Node* n){
+        if (n->prev != nullptr){
+            n->prev->next = n->next;
+        } else {
+            head_ = n->next;
+        }
+
+        if (n->next != nullptr){
+            n->next->prev  = n->prev;
+        } else {
+            tail_ = n->prev;
+        }
+        return;
+    }
+
+    void push_front(Node* n){
+        n->prev = nullptr;
+        n->next = head_;
+
+        if (head_ == nullptr){
+            tail_ = n;
+        } else {
+            head_->prev  = n;
+        }
+        head_ = n;
+        return;
+    }
+
+    void move_to_front(Node* n){
+        if (n == head_){
+            return;
+        } else {
+            unlink(n);
+            push_front(n);
+        }
+        return;
+    }
 
 
 };
