@@ -128,22 +128,27 @@ public:
 
     void unlink(Node* n){
         if (n->prev != nullptr){
-            n->prev->next = n->prev;
+            n->prev->next = n->next;
         } else {
             head_ = n->next;
         }
 
         if (n->next != nullptr){
-            n->next->prev  = n->next;
+            n->next->prev  = n->prev;
         } else {
             tail_ = n->prev;
         }
-        return void;
+        return;
     }
 
     void push_front(Node* n){
-
-        return void;
+        if (head_ == nullptr){
+            tail_ = n;
+        } else {
+            head_->prev  = n;
+        }
+        head_ = n;
+        return;
     }
 
     // void move_to_front(Node* n){
