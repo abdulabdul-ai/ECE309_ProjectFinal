@@ -158,7 +158,14 @@ bool DepGraph::dfs(const std::string& node, std::unordered_map<std::string, int>
                     }
                     if ((color.find(n) != color.end()) && (color.find(n)->second == 1)){
                         *error = "cycle: ";
+                        bool begin = false;
                         for (const auto& p : path){
+                            if (p == n){
+                                begin = true;
+                            }
+                            if (begin){
+                                *error += p + " -> ";
+                            }
                             *error += p + " -> ";
 
                         }
