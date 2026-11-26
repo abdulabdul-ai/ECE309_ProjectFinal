@@ -54,20 +54,21 @@ public:
         // with map_.end(). Do NOT use map_[key] to look up: on a miss it
         // INSERTS the key (with a nullptr node), size() grows, and a later
         // put() crashes far away from the real bug.
+        Stats s;
         auto it = map_.find(key);
         if (it == map_.end()){
-            miss++;
+            s.misses++;
             return nullptr;
         } else {
-            hits++;
+            s.hits++;
             Node* n = it->second;
             return &n->value;
-            if (n->head_ != n->value){
+            // if (n->head_ != n->value){
 
-            }
+            // }
         }
-        //(void)key;
-        //return nullptr;
+        // (void)key;
+        // return nullptr;
     }
 
     // Key present: replaces its value and marks it most recently used (no
@@ -92,8 +93,10 @@ public:
         // Clue: this function is const, so map_[key] does not even compile
         // ("discards qualifiers"). Use map_.find(key) != map_.end() or
         // map_.count(key).
-        (void)key;
-        return false;
+        if (map_.find(key) == map_.end()){
+            return false;
+        }
+        return true;
     }
 
     // Removes the key if present (not an eviction). Returns whether it was.
@@ -123,6 +126,30 @@ public:
         return out;
     }
 
+    void unlink(Node* n){
+        if (n->prev != nullptr){
+            n->prev->next = n->prev;
+        } else {
+            head_ = n->next;
+        }
+
+        if (n->next != nullptr){
+            n->next->prev  = n->next;
+        } else {
+            tail_ = n->prev;
+        }
+        return void;
+    }
+
+    void push_front(Node* n){
+
+        return void;
+    }
+
+    // void move_to_front(Node* n){
+    //     n.insert({n, 0})
+    //     return void;
+    // }
 private:
     struct Node {
         Key   key;
@@ -144,4 +171,6 @@ private:
     Node*       tail_ = nullptr;
     std::size_t capacity_;
     Stats       stats_;
+
+
 };
