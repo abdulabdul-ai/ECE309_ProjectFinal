@@ -94,6 +94,9 @@ bool DepGraph::order_from(const std::string& root, std::vector<std::string>* out
     //  * Order of checks for each edge: missing node, then gray (cycle),
     //    then white (visit). Black: skip, that is not a cycle.
     //  * Separators are exactly " -> " (space, dash, greater-than, space).
+    std::vector<std::string> gray_nodes;
+    std::vector<std::string> black_nodes;
+    std::vector<std::string> white_nodes;
     (void)root;
     (void)out;
     *error = "not implemented";
@@ -110,6 +113,67 @@ std::vector<std::string> DepGraph::dependents(const std::string& name) const {
     //    name alone loses the nearest-first order.
     //  * std::queue<std::pair<std::string, int>> (node, distance) works, or
     //    process one level (a vector) at a time.
-    (void)name;
-    return {};
+    std::unordered_set<std::string> seen;
+    std::vector<std::string> current;
+    std::vector<std::string> result;
+    seen.insert(name);
+    current.push_back(name);
+    while (!current.empty()){
+        std::vector<std::string> next;        
+        for (const auto& c : current){
+            auto it = required_by_.find(c);
+            if (it == required_by_.end()){
+
+            } else {
+                for (const auto& l : it->second){
+                    if (seen.find(l) == seen.end()){
+                        seen.insert(l);
+                        next.push_back(l);
+                    }
+                }
+            }
+        }
+        std::sort(next.begin(), next.end());
+        for (std::size_t i = 0; i < next.size(); i++){
+            result.push_back(next[i]);
+        }
+        current = next;
+    }
+
+    
+    return result;
+}
+
+bool DepGraph::dfs(const std::string& node, std::unordered_map<std::string, int>& color,
+               std::vector<std::string>& path, std::vector<std::string>* out,
+               std::string* error) const {
+
+
+               color[node] = 1;
+               path.push_back(node);
+               for (const auto& n : requirements(node)){
+                    if (!has_node(n)){
+                        *error = "missing: " + n + " (required by " + node +  ")";
+                        return false;
+                    }
+                    if ((color.find(n) != color.end()) && (color.find(n)->second == 1)){
+                        *error = "cycle: ";
+                        for (const auto& p : path){
+                            *error += p + " -> ";
+
+                        }
+                        *error += n;
+                        return false;
+                    }
+                    if (color.find(n) == color.end()){
+                       auto x = dfs(n, color, path, out, error);
+                       if (!x){
+                        return false;
+                       }
+                   }
+               }
+               color[node] = 2;
+               path.pop_back();
+               out->push_back(node);
+               return true;
 }
