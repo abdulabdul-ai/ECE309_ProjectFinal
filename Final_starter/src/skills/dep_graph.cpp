@@ -100,6 +100,10 @@ bool DepGraph::order_from(const std::string& root, std::vector<std::string>* out
     (void)root;
     (void)out;
     *error = "not implemented";
+    if (!has_node(rote)){
+        *error  = "unknown: " + root;
+        return false;
+    }
     return false;
 }
 
@@ -166,7 +170,6 @@ bool DepGraph::dfs(const std::string& node, std::unordered_map<std::string, int>
                             if (begin){
                                 *error += p + " -> ";
                             }
-                            *error += p + " -> ";
 
                         }
                         *error += n;
