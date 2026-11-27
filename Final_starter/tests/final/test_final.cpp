@@ -59,6 +59,8 @@ TEST(heap_pops_in_order) {
     CHECK_EQ(got, (std::vector<int>{1, 1, 3, 4, 5}));
 }
 
+
+
 // Example 2 (lru): the least recently USED entry is evicted, and get()
 // counts as a use.
 TEST(lru_evicts_least_recently_used) {
@@ -87,6 +89,38 @@ TEST(bst_remove_two_children) {
     CHECK_EQ(t.find(80)->text, std::string("m80"));
     CHECK_EQ(t.size(), std::size_t{4});
 }
+
+// Example 5 (bst): removing a node with 0 children keeps the tree sorted,
+// keeps every other record, and lowers size() by exactly one.
+TEST(bst_remove_no_child) {
+    MemoryIndex t;
+    for (std::uint64_t id : {50, 30, 70, 60, 80}) REQUIRE(t.insert(MemoryRecord{id, "m" + std::to_string(id)}));
+    REQUIRE(t.remove(30));
+    std::vector<std::uint64_t> ids;
+    t.for_each_in_order([&](const MemoryRecord& r) { ids.push_back(r.id); });
+    CHECK_EQ(ids, (std::vector<std::uint64_t>{50, 60, 70, 80}));
+    CHECK(t.find(30) == nullptr);
+    CHECK_EQ(t.size(), std::size_t{4});
+}
+
+// Example 6 (bst): removing a node with one child keeps the tree sorted,
+// keeps every other record, and lowers size() by exactly one.
+TEST(bst_remove_one_child_and_duplicate_and_height) {
+    MemoryIndex t;
+    for (std::uint64_t id : {50, 70, 60, 80}) REQUIRE(t.insert(MemoryRecord{id, "m" + std::to_string(id)}));
+    REQUIRE(t.remove(50));
+    REQUIRE(!t.insert(MemoryRecord{70, "m" + std::to_string(70)}));
+    std::vector<std::uint64_t> ids;
+    t.for_each_in_order([&](const MemoryRecord& r) { ids.push_back(r.id); });
+    CHECK_EQ(ids, (std::vector<std::uint64_t>{60, 70, 80}));
+    CHECK(t.find(50) == nullptr);
+    REQUIRE(t.find(60) != nullptr);
+    CHECK_EQ(t.find(60)->text, std::string("m60"));
+    CHECK_EQ(t.size(), std::size_t{3});
+    CHECK_EQ(t.height(), std::size_t{2});
+}
+
+
 
 // Example 4 (ctx): the worked example in spec §4.4.
 TEST(ctx_spec_example) {
