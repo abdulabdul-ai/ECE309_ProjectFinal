@@ -136,8 +136,10 @@ public:
         // TODO: delete every node, empty the map, reset head_/tail_.
         // Clue: save n->next in a local BEFORE  delete n;  a loop like
         //   for (Node* n = head_; n; n = n->next) delete n;
-        for (Node* n = head_; n != nullptr; n = n->next){
+        for (Node* n = head_; n != nullptr;){
+            Node* next_ = n -> next;
             delete n;
+            n = next_;
         }
         map_.clear();
         head_ = nullptr;
