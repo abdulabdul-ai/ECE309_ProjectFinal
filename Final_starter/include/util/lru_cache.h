@@ -119,8 +119,13 @@ public:
     // Removes the key if present (not an eviction). Returns whether it was.
     bool erase(const Key& key) {
         // TODO
-        (void)key;
-        return false;
+        auto it = map_.find(key);
+        if (it == map_.end()){
+            return false;
+        } else {
+            map_.erase(it);
+            return true;
+        }
     }
 
     // Removes every entry. Stats are kept.
