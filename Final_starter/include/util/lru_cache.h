@@ -86,8 +86,12 @@ public:
                 unlink(victim);
                 map_.erase(victim->key);
                 delete victim;
-                stats.eviction++;
+                stats_.evictions++;
+
             }
+            Node* n = new Node{key, std::move(value), nullptr, nullptr};
+            push_front(n);
+            map_.insert({key, n});
         }
         // TODO
         // Clue (eviction): victim = tail_; unlink it; erase victim->key from
