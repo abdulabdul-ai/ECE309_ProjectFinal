@@ -123,7 +123,10 @@ public:
         if (it == map_.end()){
             return false;
         } else {
+            Node* n = it->second;
+            unlink(n);
             map_.erase(it);
+            delete n;
             return true;
         }
     }
