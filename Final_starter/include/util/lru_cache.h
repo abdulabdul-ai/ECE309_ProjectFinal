@@ -76,10 +76,18 @@ public:
         if (capacity_ == 0){ return;}
         auto it = map_.find(key);
         if (it != map_.end()){
-            Node *n = it->second;
+            Node* n = it->second;
             n->value = std::move(value);
             move_to_front(n);
             return;
+        } else {
+            if (capacity_ == map_.size()){
+                Node* victim = tail_;
+                unlink(victim);
+                map_.erase(victim->key);
+                delete victim;
+                stats.eviction++;
+            }
         }
         // TODO
         // Clue (eviction): victim = tail_; unlink it; erase victim->key from
