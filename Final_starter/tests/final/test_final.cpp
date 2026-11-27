@@ -43,9 +43,11 @@
 #include <string>
 #include <utility>
 #include <vector>
+//
 #include <iostream>
 #include <algorithm>
 #include <random>
+#include <chrono>
 
 // =========================================================================
 // Memory — 4 examples
@@ -60,6 +62,41 @@ TEST(heap_pops_in_order) {
     std::vector<int> got;
     while (!h.empty()) got.push_back(h.pop());
     CHECK_EQ(got, (std::vector<int>{1, 1, 3, 4, 5}));
+}
+// Example 1 (heap): check top_k (k = 10) against full sort on random 100k data and print time
+TEST(heap_100000_top_k_k_is_10_time) {
+    std::vector<std::uint64_t> ids;
+    for (std::uint64_t id = 1; id < 100001; id++){
+        ids.push_back(id);
+    }
+    std::mt19937 g(1111);
+    std::shuffle(ids.begin(), ids.end(), g);
+    std::vector<std::uint64_t> copy = ids;
+    auto time_prev_sort = std::chrono::steady_clock::now();
+    std::sort(copy.rbegin(), copy.rend());
+    auto time_after_sort = std::chrono::steady_clock::now();
+    std::vector<std::uint64_t> copy2(copy.begin(), copy.begin() + 10);
+    auto time_prev_top_k = std::chrono::steady_clock::now();
+    CHECK_EQ(top_k((ids), 10 ), copy2);
+    auto time_after_top_k = std::chrono::steady_clock::now();
+    std::cout << "time for sorting 100,000 (in milliseconds): " << 
+    (std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_after_sort - time_prev_sort).count())
+    << std::endl;
+
+    std::cout << "time for top_k for k = 10 (in milliseconds): " << 
+    std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_after_top_k - time_prev_top_k).count()
+    << std::endl;
+
+
+
+}
+
+
+// Example 1 (heap): top_k with on empty and full vectors with k = 0 or k = 6 (n = 5).
+TEST(heap_top_k_is_zero_and_greater_than_n) {
+    CHECK_EQ(top_k((std::vector<int>{5, 1, 4, 1, 3}), 0 ), (std::vector<int>{}));
+    CHECK_EQ(top_k((std::vector<int>{}), 6), (std::vector<int>{}));
+    CHECK_EQ(top_k((std::vector<int>{5, 1, 4, 1, 3}), 6 ), (std::vector<int>{5, 4, 3, 1, 1}));
 }
 
 // Example 1 (heap): no items in heap, so top and pop functions throw errors.
@@ -81,6 +118,8 @@ TEST(heap_pop_and_top_on_empty) {
     CHECK(throws_pop);
     CHECK(throws_top);
 }
+
+
 
 
 // Example 2 (lru): the least recently USED entry is evicted, and get()
@@ -171,6 +210,8 @@ TEST(bst_height_1000_in_order_and_shuffled) {
     CHECK_EQ(u.height(), std::size_t{1000});
 }
 
+
+
 // Example 4 (ctx): the worked example in spec §4.4.
 TEST(ctx_spec_example) {
     std::vector<ContextItem> items{
@@ -257,6 +298,65 @@ TEST(graph_order_and_cycle_message) {
     CHECK(!g.order_from("a", &order, &error));
     CHECK_EQ(error, std::string("cycle: a -> c -> a"));
 }
+
+// Example 7 (graph): checks the chain, self-loop, and a missing requirement,
+// with the error message by missing being: "missing: n (required by m)".
+TEST(graph_chain_self_loop_missing) {
+    DepGraph g;
+    for (const char* n : {"l", "m", "n"}) g.add_node(n);
+    g.add_edge("l", "m");   // l requires m
+    g.add_edge("m", "n");
+    std::vector<std::string> order;
+    std::string error;
+    REQUIRE(g.order_from("l", &order, &error));
+    CHECK_EQ(order, (std::vector<std::string>{"n", "m", "l"}));
+
+    DepGraph h;
+    for (const char* n : {"l"}) h.add_node(n);
+    h.add_edge("l", "l");   // l requires l
+
+    CHECK(!h.order_from("l", &order, &error));
+    CHECK_EQ(error, std::string("cycle: l -> l"));
+
+    DepGraph i;
+    for (const char* n : {"l", "m"}) i.add_node(n);
+    i.add_edge("l", "m");   // l requires m
+    i.add_edge("m", "n");   // m requires n
+
+    CHECK(!i.order_from("l", &order, &error));
+    CHECK_EQ(error, std::string("missing: n (required by m)"));
+
+}
+
+// Example 7 (graph): checks the chain, self-loop, and a missing requirement,
+// with the error message by missing being: "missing: n (required by m)".
+TEST(graph_chain_self_loop_missing) {
+    DepGraph g;
+    for (const char* n : {"l", "m", "n"}) g.add_node(n);
+    g.add_edge("l", "m");   // l requires m
+    g.add_edge("m", "n");
+    std::vector<std::string> order;
+    std::string error;
+    REQUIRE(g.order_from("l", &order, &error));
+    CHECK_EQ(order, (std::vector<std::string>{"n", "m", "l"}));
+
+    DepGraph h;
+    for (const char* n : {"l"}) h.add_node(n);
+    h.add_edge("l", "l");   // l requires l
+
+    CHECK(!h.order_from("l", &order, &error));
+    CHECK_EQ(error, std::string("cycle: l -> l"));
+
+    DepGraph i;
+    for (const char* n : {"l", "m"}) i.add_node(n);
+    i.add_edge("l", "m");   // l requires m
+    i.add_edge("m", "n");   // m requires n
+
+    CHECK(!i.order_from("l", &order, &error));
+    CHECK_EQ(error, std::string("missing: n (required by m)"));
+
+}
+
 
 // Example 8 (index): rank by number of distinct query words; ties go to the
 // smaller doc id.
