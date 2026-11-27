@@ -43,6 +43,9 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <iostream>
+#include <algorithm>
+#include <random>
 
 // =========================================================================
 // Memory — 4 examples
@@ -59,6 +62,25 @@ TEST(heap_pops_in_order) {
     CHECK_EQ(got, (std::vector<int>{1, 1, 3, 4, 5}));
 }
 
+// Example 1 (heap): no items in heap, so top and pop functions throw errors.
+TEST(heap_pop_and_top_on_empty) {
+    MinHeap<int> h;
+    bool throws_top = false;
+    bool throws_pop = false;
+
+    try {
+        h.top();
+    } catch(const std::out_of_range&) {
+        throws_top = true;
+    }
+    try {
+        h.pop();
+    } catch(const std::out_of_range&) {
+        throws_pop = true;
+    }
+    CHECK(throws_pop);
+    CHECK(throws_top);
+}
 
 
 // Example 2 (lru): the least recently USED entry is evicted, and get()
@@ -103,7 +125,7 @@ TEST(bst_remove_no_child) {
     CHECK_EQ(t.size(), std::size_t{4});
 }
 
-// Example 6 (bst): removing a node with one child keeps the tree sorted,
+// Example 6 (bst): removing a node with one child keeps the tree sorted, rejects duplicate node inserts, and gives the accurate height, 
 // keeps every other record, and lowers size() by exactly one.
 TEST(bst_remove_one_child_and_duplicate_and_height) {
     MemoryIndex t;
@@ -120,7 +142,34 @@ TEST(bst_remove_one_child_and_duplicate_and_height) {
     CHECK_EQ(t.height(), std::size_t{2});
 }
 
+// Example 7 (bst): prints the accurate height, 
+// for both a shuffled and in-order tree of size 1000, starting with value 1 and ending with value 1000.
+TEST(bst_height_1000_in_order_and_shuffled) {
+    MemoryIndex t;
+    std::vector<std::uint64_t> ids;
+    for (std::uint64_t id = 1; id < 1001; id++){
+        ids.push_back(id);
+    }
+    std::mt19937 g(82);
+    std::shuffle(ids.begin(), ids.end(), g);
 
+    for (const auto&i : ids){
+        REQUIRE(t.insert(MemoryRecord{i, "m" + std::to_string(i)}));
+    }
+    std::cout << "height shuffled: " << t.height() << std::endl;
+    CHECK(t.height() < std::size_t{50}); 
+
+
+    MemoryIndex u;
+    for (std::uint64_t id = 1; id < 1001; id++){
+        REQUIRE(u.insert(MemoryRecord{id, "m" + std::to_string(id)}));
+    }
+    //std::vector<std::uint64_t> ids;
+
+
+    std::cout << "height in order: " << u.height() << std::endl;
+    CHECK_EQ(u.height(), std::size_t{1000});
+}
 
 // Example 4 (ctx): the worked example in spec §4.4.
 TEST(ctx_spec_example) {
